@@ -19,6 +19,16 @@ function myFunction()
 
 <?php
 
+include("table_management.php");
+
+//servername="localhost"
+//username="username"
+//password="password"
+//dbname="Items"
+//Table="rationed_items"
+
+$ration = new table_manager("localhost","username","password","Items","rationed_items");
+
 //Put the functions into a class,in a seperate php file and include it and create
 //an object instance to make the code look cleaner etc.
 
@@ -56,10 +66,25 @@ if(isset($_POST['submitb']))
 	//	$msg = $_POST['days'];
 	//
 
-	open_database();	
-	create_table();
+	//	create_database();
+	
+/*	$servername="localhost";
+	$username="username";
+	$password="pasword";
+	$dbname="Items";
+ */
+
+
+	$db = db_connect();
+	create_database($db);
+	add_table($db);
+
+//	open_database();	
+//	create_table();
 	insert_data($test);
 	view_data();
+
+//	$conn=null;
 }
 
 if(isset($_POST['deleteb']))
@@ -73,6 +98,37 @@ if(isset($_POST['deleteb']))
 if(isset($_POST['delete_tableb']))
 {
 	delete_table();
+	ration.delete_database();
+}
+
+
+function db_connect()
+{
+	$servername="localhost";
+	$username="username";
+	$password="password";
+	$dbname="Items";
+
+	$db="mysql:host=$servername;dbname=$dbname;charset=utf8mb4";
+	$options= array(PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC);
+
+	return new PDO($db,$username,$password,$options);
+}
+
+function create_database($conn)
+{
+	$dbname="Items";
+	$sql="create database if not exists " . $dbname;
+
+
+	try
+	{
+		$conn->exec($sql);
+		echo "database created(if not already)<br>";
+	}catch(PDOException $e)
+	{
+		echo $sql . "<br>" . $e->getMessage();
+	}
 }
 
 function open_database()
@@ -80,19 +136,47 @@ function open_database()
 	$servername="localhost";
 	$username="username";
 	$password="password";
+	$dbname="Items";
 
 	try
 	{
 		$conn = new PDO("mysql:host=$servername",$username,$password);
 		$conn->setAttribute(PDO::ATTR_ERRMODE,PDO::ERRMODE_EXCEPTION);
-		$sql="create database if not exists Items";
+			
+		$sql="create database if not exists " . $dbname;
 		$conn->exec($sql);
+
 		echo "database created successfully<br>";	
 	} catch(PDOException $e)
 	{
 		echo $sql . "<br>" . $e->getMessage();
 	}
-	$conn=null;	
+	$conn=null;
+}
+
+function add_table($conn)
+{
+	$servername="localhost";
+	$username="username";
+	$password="password";
+	$dbname="Items";
+
+	try
+	{
+		$sql="create table if not exists rationed_items(
+		id INT AUTO_INCREMENT PRIMARY KEY,
+		name	VARCHAR(30) NOT NULL,
+		serving INT(6),
+		days INT(6),
+		UNIQUE KEY unique_name (name)
+		);";
+	
+		$conn->exec($sql);
+		echo "Table rationed_items created(if not already)<br>";
+	}catch(PDOException $e)
+	{
+		echo $sql . "<br>" . $e->getMessage();
+	}
 }
 
 function create_table()
@@ -104,6 +188,7 @@ function create_table()
 
 	try
 	{
+		//$con=$connection;
 		$conn=new PDO("mysql:host=$servername;dbname=$dbname",$username,$password);
 		$conn->setAttribute(PDO::ATTR_ERRMODE,PDO::ERRMODE_EXCEPTION);
 
