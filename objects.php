@@ -1,5 +1,57 @@
 <?php
 
+abstract class File_management
+{
+	protected $filename;
+	protected $fd;
+	protected $permissions;
+	protected $buffer;
+
+	/*needs to log itself, as nothing is logging this object's behaviour,as it's used for every other object's behaviour*/
+
+	public function __construct($filename,$permissions)
+	{
+		$this->filename=$filename; 
+		$this->permissions=$permissions;
+	}
+	public function open_file()
+	{
+		if(($this->fd = fopen($this->filename,$this->permissions))==false)
+		{
+			die("fopen failed: ");	
+		}	
+	}
+	public function close_file()
+	{
+		fclose($this->fd);
+	}
+
+	abstract protected function write_file();
+	abstract protected function read_file();
+
+}
+
+//log be a compounding object, so it appears inside other classes defined
+class Log extends File_management
+{
+	//filename to log to, can have different files for logging different things. or to the same file.
+
+	public function set_log_message($buffer)
+	{
+		$this->buffer=$buffer;
+	}
+
+	//assume we're open in append mode
+	public function write_file()
+	{
+		//fprintf($this->fd,"%d [occured at (date and time here)...	
+	}
+	
+	public function read_file()
+	{
+
+	}
+}
 
 //use for security
 class Filter_info
