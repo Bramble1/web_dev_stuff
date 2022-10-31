@@ -2,47 +2,35 @@
 
 
 //use for security
-class filter_information
+class Filter_info
 {
-	protected $buffer;
-	protected $err_msg;
+	
+	protected $err_msg; //use for the logging class , in latter version.
 
-	function clean_input()
+	function clean_input(&$buffer)
 	{
-		$this->buffer= htmlspecialchars( stripslashes( trim($buffer))) ;
+		$buffer= htmlspecialchars( stripslashes( trim($buffer))) ;
 	}
 
 	//returns 0 if clean,else -1
-	function restrict_input($option)
+	function letters_only(&$buffer)
 	{
-		//restrict parameter to only letters allowed
-		if(option=='l' || option=='L')
+		if(!preg_match("/^[a-zA-Z]+$/",$buffer))
 		{
-			//check if buffer only contains letters and white space
-			if(!preg_match("/^[a-zA-Z-']*$/",$this->buffer))
-			{
-				$err_msg = "input is contaminated with non-letters!";
-				return -1;
-			}
-		}//restrict check to numbers only
-		else if(option=='n' || option=='N')
-
-		{
-			if(!preg_match("/^[0-9]*$/",$this->buffer))
-			{
-				$err_msg = "input is contaminated with letters";
-				return -1;
-			}
+			echo "[!]Letters only[!]";
+			return -1;
 		}
+		return 0;
 	}
 
-	function get_buffer()
+	function numbers_only(&$buffer)
 	{
-		return $this->buffer;
-	}
-	function set_buffer($buffer)
-	{
-		$this->buffer=$buffer;
+		if(!preg_match("/^[0-9]+$/",$buffer))
+		{
+			echo "[!]Numbers only[!]";
+			return -1;
+		}
+		return 0;		
 	}	
 }
 
