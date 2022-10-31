@@ -53,21 +53,11 @@ if(isset($_POST['submitb']))
 
 	$input = array($_POST['item'],$_POST['amount'],$_POST['days']);
 	
-	//verify data here in latter version...(for now assume it's verified)
-	//this should be it's own function,as the calculate button,requires them
-	//...maybe.
+	//verify data
 	for($i=0;$i<3;$i++)
 	{
-		//echo $input[$i];
-
-		//$filter->clean_input($input[$i]);
-		//shold just pass a pointer,thus no need
-		//to move memory,just edit in place.Add this in latter version.
-		
-		//$filter->clean_input($input[0]); //this works,when not parsing variable i.
-		$filter->clean_input($input[$i]); //works now?
-		//echo "<br><br>";	
-		//echo $input[$i];
+		//pushing memory address as argument on the stack frame for clean_input(). Pass by reference.
+		$filter->clean_input($input[$i]);
 
 		//this is working now...
 		if($i==0)
@@ -75,9 +65,7 @@ if(isset($_POST['submitb']))
 			if($filter->letters_only($input[$i])==-1)
 			{
 				$invalid=true;
-				break; //it's breakinghere, so we do recieve an error
-					//have an invisible attribute we make appear, to remind
-				//the user what to enter, and disappears when user submits correctly.
+				break;
 			}
 
 		}
@@ -90,14 +78,6 @@ if(isset($_POST['submitb']))
 		}
 
 	}
-
-
-	/*test see if cleaning works*/
-	//$input[0] = htmlspecialchars(stripslashes(trim($input[0]))); //this works.
-//	$input[0]=trim($input[0]);	//trim removes whitespace
-//	$input[0]=stripslashes($input[0]);	//removes backslashes
-//	$input[0]=htmlspecialchars($input[0]);//converts some predefined characters to html entities
-//	echo "<br>" . $input[0]; echo $input[1]; echo $input[2];
 
 	if($invalid==false)
 	{
@@ -115,6 +95,13 @@ if(isset($_POST['submitb']))
 			'document.getElementById("add").style.display=`"hidden";',
 			'</script>';*/
 	}
+	else
+	{
+		//database usage to show table if exists
+		$ration->connect_to_db();
+		$ration->view_data();
+		$ration->disconnect_from_db();
+	}
 }
 
 if(isset($_POST['deleteb']))
@@ -123,12 +110,30 @@ if(isset($_POST['deleteb']))
 	//for the record id
 	$input=array($_POST['item']);
 
-	//database usage
-	$ration->connect_to_db();
-	$ration->delete_data($input);
-	$ration->view_data();
-	$ration->disconnect_from_db();
-	
+	$invalid = false;
+
+	if($filter->numbers_only($input[0])==-1)
+	{
+		$invalid=true;
+		//change textfield to tell the user what they need to enter and where to perform a delete query
+		echo "[!]Enter ID to delete, inside Item textbox[!]<br>";
+	}
+
+	if($invalid==false)
+	{
+		//database usage
+		$ration->connect_to_db();
+		$ration->delete_data($input);
+		$ration->view_data();
+		$ration->disconnect_from_db();
+	}
+	else
+	{
+		//database usage, just print existing table if exists
+		$ration->connect_to_db();
+		$ration->view_data();
+		$ration->disconnect_from_db();
+	}
 }
  
 //could replace button to 'new' and delete and autocreate
@@ -150,7 +155,7 @@ if(isset($_POST['delete_tableb']))
 <form action="" method="post">
 <form action="" method="post">
 <label>Food Item</label>
-<input type="text" id="item" name="item" value="String"><br><br>
+<input type="text" id="item" name="item" value="String or ID to delete."><br><br>
 <label for amount>Grams</label>
 <input type="text" id="amount" name="amount" value="Number"><br><br>
 <label for days>Days</label>
