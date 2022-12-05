@@ -1,0 +1,81 @@
+@page
+@model AddAddressModel
+
+@{
+	ViewData["Title"]="British Birds";
+}
+
+<h1>Search Bird</h1>
+<form method="post" id="myForm" name="Form">
+	<input type="text" asp-for="Input.buffer" placeholder="Birdname" id="text"/>
+	<button type="submit">Submit</button>	
+</form>
+
+
+<h1>form dropdown test</h1>
+<hr>
+
+<p>@ViewData["error"]</p>
+
+
+<hr>
+<ul>
+	<li>
+		@ViewData["bird"];
+	</li>
+	<hr>
+
+	
+
+</ul>
+
+<hr>
+<img src=@ViewData["image"] alt="error" width="500" height="333"/>
+
+<hr>
+
+
+<script>
+function auto_search(ClickedElement)
+{
+	var theId=ClickedElement.id;
+
+	document.getElementById("text").value=theId;	
+	document.Form.submit();
+
+
+}
+
+</script>
+
+<p> @ViewData["text"]</p>
+
+
+<!-- c# server code to update this list, will take a hit on performance, but it means we dont have to keep running the setup program to update the list, incase an item
+is added to the database -->
+
+
+@Html.Raw(@ViewData["tester"])
+
+@ViewData["tester"]
+
+<!-- @Html.Raw(@ViewData["list"])-->
+
+<!--@Html.Raw(@ViewData["list"]);-->
+
+@{
+
+	/*having issues rendering the html, so could just
+	store the names themselves and then create the tags
+	here with just the names inside...*/
+	
+	if(ViewData["list"]!=null){
+	foreach(var item in ViewData["list"] as List<dynamic>)
+	{
+		<a id=@item.name onclick="auto_search(this)" href="#">@item.name</a>
+	//	Html.Raw("@item");
+	//	<p>@item.name</p>
+	}
+	}
+
+}
